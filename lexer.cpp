@@ -3,7 +3,8 @@
 #include <sstream>
 
 #include "lexer.h"
-
+#include <limits.h>
+#include "interp.h"
 
 
 // -----------------------------------------------------------------------------
@@ -15,6 +16,10 @@ Token::Token(const Token &that)
     case Kind::STRING:
     case Kind::IDENT: {
       value_.StringValue = new std::string(*that.value_.StringValue);
+      break;
+    }
+    case Kind::INT: {
+      value_.IntValue = that.value_.IntValue;
       break;
     }
     default: {
@@ -32,6 +37,10 @@ Token &Token::operator=(const Token &that)
       delete value_.StringValue;
       break;
     }
+    case Kind::INT: {
+      //value_.IntValue = 0;
+      break;
+    }
     default: {
       break;
     }
@@ -42,6 +51,10 @@ Token &Token::operator=(const Token &that)
     case Kind::STRING:
     case Kind::IDENT: {
       value_.StringValue = new std::string(*that.value_.StringValue);
+      break;
+    }
+    case Kind::INT: {
+      value_.IntValue = that.value_.IntValue;
       break;
     }
     default: {
@@ -58,6 +71,10 @@ Token::~Token()
     case Kind::STRING:
     case Kind::IDENT: {
       delete value_.StringValue;
+      break;
+    }
+    case Kind::INT: {
+      //value_.IntValue = 0;
       break;
     }
     default: {
@@ -79,6 +96,13 @@ Token Token::String(const Location &l, const std::string &str)
 {
   Token tk(l, Kind::STRING);
   tk.value_.StringValue = new std::string(str);
+  return tk;
+}
+
+Token Token::Int(const Location &l, uint64_t num)
+{
+  Token tk(l, Kind::INT);
+  tk.value_.IntValue = num;
   return tk;
 }
 
@@ -207,6 +231,18 @@ const Token &Lexer::Next()
         if (word == "return") return tk_ = Token::Return(loc);
         if (word == "while") return tk_ = Token::While(loc);
         return tk_ = Token::Ident(loc, word);
+      }
+      else if(isdigit(chr_)){
+        uint64_t num = 0;
+        while (isdigit(chr_)) {
+          num = num * 10 + (chr_ - '0');
+          if(std::numeric_limits<int64_t>::max() < num)
+          {
+            throw RuntimeError("overflow for the read integer value");
+          }
+          NextChar();
+        }
+        return tk_ = Token::Int(loc, num);
       }
       Error("unknown character '" + std::string(1, chr_) + "'");
     }

@@ -128,6 +128,8 @@ private:
   /// Lowers a call expression.
   void LowerCallExpr(const Scope &scope, const CallExpr &expr);
 
+  void LowerIntExpr(const Scope &scope, const IntExpr &expr);
+
   /// Lowers a function declaration.
   void LowerFuncDecl(const Scope &scope, const FuncDecl &funcDecl);
 
@@ -137,6 +139,8 @@ private:
 
   /// Emit a pop instruction.
   void EmitPop();
+
+  void EmitPushInt(uint64_t value);
   /// Emit a call instruction.
   void EmitCall(unsigned nargs);
   /// Push a function address to the stack.

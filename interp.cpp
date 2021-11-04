@@ -21,6 +21,10 @@ void Interp::Run()
         Push(prog_.Read<RuntimeFn>(pc_));
         continue;
       }
+      case Opcode::PUSH_INT: {
+        Push(prog_.Read<int64_t>(pc_));
+        continue;
+      }
       case Opcode::PEEK: {
         auto idx = prog_.Read<unsigned>(pc_);
         Push(*(stack_.rbegin() + idx));
@@ -51,7 +55,15 @@ void Interp::Run()
       case Opcode::ADD: {
         auto rhs = PopInt();
         auto lhs = PopInt();
-        Push(lhs + rhs);
+        uint64_t sum = lhs + rhs;
+        if(sum < 0 && rhs >= 0 && lhs >= 0){
+          throw RuntimeError("overflow for the ADD operation");
+        }
+
+        if(sum >= 0 && rhs < 0 && lhs < 0){
+          throw RuntimeError("overflow for the ADD operation");
+        }
+        Push(sum);
         continue;
       }
       case Opcode::RET: {

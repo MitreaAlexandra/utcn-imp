@@ -177,6 +177,9 @@ void Codegen::LowerExpr(const Scope &scope, const Expr &expr)
     case Expr::Kind::CALL: {
       return LowerCallExpr(scope, static_cast<const CallExpr &>(expr));
     }
+    case Expr::Kind::INT: {
+      return LowerIntExpr(scope, static_cast<const IntExpr &>(expr));
+    }
   }
 }
 
@@ -221,6 +224,12 @@ void Codegen::LowerCallExpr(const Scope &scope, const CallExpr &call)
   LowerExpr(scope, call.GetCallee());
   EmitCall(call.arg_size());
   depth_ -= call.arg_size();
+}
+
+void Codegen::LowerIntExpr(const Scope &scope, const IntExpr &expr)
+{
+  EmitPushInt(expr.GetNum());
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -290,6 +299,14 @@ void Codegen::EmitPop()
   assert(depth_ > 0 && "no elements on stack");
   depth_ -= 1;
   Emit<Opcode>(Opcode::POP);
+}
+
+void Codegen::EmitPushInt(uint64_t value)
+{
+  assert(depth_ > 0 && "no elements on stack");
+  depth_ += 1;
+  Emit<Opcode>(Opcode::PUSH_INT);
+  Emit<int64_t>(value);
 }
 
 // -----------------------------------------------------------------------------

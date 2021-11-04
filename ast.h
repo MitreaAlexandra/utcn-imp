@@ -45,6 +45,7 @@ public:
     REF,
     BINARY,
     CALL,
+    INT,
   };
 
 public:
@@ -73,6 +74,21 @@ public:
 private:
   /// Name of the identifier.
   std::string name_;
+};
+
+class IntExpr : public Expr {
+public:
+  IntExpr(uint64_t num)
+    : Expr(Kind::INT)
+    , num_(num)
+  {
+  }
+
+  uint64_t GetNum()  const { return num_; }
+
+private:
+  /// Name of the identifier.
+  uint64_t num_;
 };
 
 /**
